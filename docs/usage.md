@@ -11,8 +11,8 @@
    `CLOUDFLARE_API_TOKEN` secret.
 4. Restrict live deployment to the default branch. Require an independent
    reviewer, disable self-review and verify those protections in the repository.
-   The activation preflight checks for branch restrictions and independent
-   review before requesting the environment.
+   The activation preflight checks that a branch policy and independent
+   review are configured before requesting the environment.
 
 ## Call the workflow
 
@@ -29,7 +29,8 @@ require a stable tag in that branch's history. The caller manages tag creation.
 
 For a target rehearsal, call the workflow from a `workflow_dispatch` job.
 Pass the environment token by name on that call. Use the synthetic target
-token described in the [deploy action guide](https://github.com/vhco-pro/worker-deploy-action/blob/main/docs/usage.md).
+token `synthetic-worker-rehearsal-<target>` and a 32-digit dummy account ID
+for the selected environment.
 
 ```yaml
 jobs:
