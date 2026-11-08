@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       operation:
-        description: verify, publish or activate
+        description: verify, publish, rehearse or activate
         required: true
         type: string
       project:
@@ -27,6 +27,10 @@ on:
         description: One target for an activation
         type: string
         default: ''
+    secrets:
+      CLOUDFLARE_API_TOKEN:
+        description: Deployment token resolved from the selected caller environment.
+        required: false
 
 jobs:
   identity:
@@ -78,7 +82,7 @@ jobs:
           git merge-base --is-ancestor "$commit" HEAD
           case "$OPERATION" in
             publish) [[ -z "$TARGET" ]] ;;
-            activate)
+            activate|rehearse)
               [[ "$PREFIX" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]]
               jq -e --arg target "$TARGET" 'index($target) != null' <<< "$TARGETS" >/dev/null
               ;;
@@ -117,7 +121,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - id: verify
-        uses: vhco-pro/worker-ci-action@e33f5492fd4813cabeb6ab94dff2bf6391b92414
+        uses: vhco-pro/worker-ci-action@2451d9b0aebea258785cddaf2ddb9264d787a4d6
         with:
           project: ${{ inputs.project }}
           target: ${{ matrix.target }}
@@ -189,7 +193,7 @@ jobs:
           done
 
   activate:
-    if: inputs.operation == 'activate' && github.event_name == 'workflow_dispatch'
+    if: (inputs.operation == 'activate' || inputs.operation == 'rehearse') && github.event_name == 'workflow_dispatch'
     needs: identity
     runs-on: ubuntu-latest
     timeout-minutes: 12
@@ -219,7 +223,7 @@ jobs:
           gh release download "$TAG" --dir "$STAGE" --pattern "$TARGET.mjs" --pattern "$TARGET.json"
           mv "$STAGE/$TARGET.mjs" "$STAGE/worker.mjs"
           mv "$STAGE/$TARGET.json" "$STAGE/manifest.json"
-      - uses: vhco-pro/worker-deploy-action@fea6a38ab8a27e8eb6aed71671bfb4bbf16fe024
+      - uses: vhco-pro/worker-deploy-action@586f03db605260f752621b288200c6cccd70bc72
         with:
           project: ${{ inputs.project }}
           target: ${{ inputs.target }}
@@ -229,3 +233,4 @@ jobs:
           artifact: ${{ runner.temp }}/selected-release
           account: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
           token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          rehearse: ${{ inputs.operation == 'rehearse' }}

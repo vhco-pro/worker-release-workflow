@@ -8,6 +8,7 @@ commit SHA. The caller runs versioning after verification on the default branch.
 | --- | --- | --- |
 | `verify` | Checkout and target allowlist | Runs the Worker CI action for each target. |
 | `publish` | Exact stable tag on the default branch history | Re-verifies the tag, then publishes its immutable release assets. |
+| `rehearse` | Manual dispatch with an exact published tag and one allowlisted target | Verifies the selected environment and runs the no-bundle upload dry run with synthetic credentials. |
 | `activate` | Manual dispatch on the default branch with an exact published tag and one allowlisted target | Downloads that target's immutable assets and activates them through its protected environment. |
 
 The caller needs `contents: read` for verification and activation, and
@@ -22,7 +23,8 @@ Set the account and Worker variables and the deployment token there. Scope
 the environment to the default branch and require review by another person. The preflight checks the deployed GitHub settings
 before the activation job starts. Use
 `CLOUDFLARE_ACCOUNT_ID`, `WORKER_NAME` and `CLOUDFLARE_API_TOKEN`. The Workflow
-never shares those values with verification or publication.
+never shares those values with verification or publication. The caller passes
+`CLOUDFLARE_API_TOKEN` by name only for activation or rehearsal.
 
 The `vhco-contact` pilot uses `contact-vitepress` and
 `contact-stackweaver`. Its caller is the working example for the verify,
