@@ -121,7 +121,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - id: verify
-        uses: vhco-pro/worker-ci-action@2451d9b0aebea258785cddaf2ddb9264d787a4d6
+        uses: vhco-pro/worker-ci-action@2451d9b0aebea258785cddaf2ddb9264d787a4d6 # v0.1.0
         with:
           project: ${{ inputs.project }}
           target: ${{ matrix.target }}
@@ -223,7 +223,7 @@ jobs:
           gh release download "$TAG" --dir "$STAGE" --pattern "$TARGET.mjs" --pattern "$TARGET.json"
           mv "$STAGE/$TARGET.mjs" "$STAGE/worker.mjs"
           mv "$STAGE/$TARGET.json" "$STAGE/manifest.json"
-      - uses: vhco-pro/worker-deploy-action@586f03db605260f752621b288200c6cccd70bc72
+      - uses: vhco-pro/worker-deploy-action@586f03db605260f752621b288200c6cccd70bc72 # v0.1.0
         with:
           project: ${{ inputs.project }}
           target: ${{ inputs.target }}
